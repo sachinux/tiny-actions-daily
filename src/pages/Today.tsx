@@ -19,11 +19,10 @@ const Today = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
       
-      const today = new Date().toISOString().split("T")[0];
       const { data, error } = await supabase
         .from("tasks")
         .select("*, projects(outcome, category)")
-        .eq("scheduled_date", today)
+        .eq("task_status", "today")
         .is("completed_at", null)
         .order("created_at", { ascending: true })
         .limit(3);

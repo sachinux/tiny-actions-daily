@@ -5,15 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Lightbulb, CheckSquare, FileText, Sparkles } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Plus, Lightbulb, CheckSquare, FileText, Sparkles, Grid3x3 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Layout from "@/components/Layout";
 import { AITextEnhancer } from "@/components/AITextEnhancer";
+import { EisenhowerMatrix } from "@/components/EisenhowerMatrix";
 
 const Inbox = () => {
   const [content, setContent] = useState("");
   const [type, setType] = useState<"idea" | "task" | "note">("idea");
+  const [urgency, setUrgency] = useState<"low" | "high">("low");
+  const [importance, setImportance] = useState<"low" | "high">("low");
   const [showAIEnhancer, setShowAIEnhancer] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "matrix">("list");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -35,7 +42,7 @@ const Inbox = () => {
   });
 
   const addItem = useMutation({
-    mutationFn: async (newItem: { content: string; type: string }) => {
+    mutationFn: async (newItem: { content: string; type: string; urgency: string; importance: string }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
@@ -43,6 +50,8 @@ const Inbox = () => {
         user_id: user.id,
         content: newItem.content,
         type: newItem.type as any,
+        urgency: newItem.urgency as any,
+        importance: newItem.importance as any,
       });
       
       if (error) throw error;
@@ -50,6 +59,8 @@ const Inbox = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inbox"] });
       setContent("");
+      setUrgency("low");
+      setImportance("low");
       toast({
         title: "Captured!",
         description: "Your idea is safely stored.",
@@ -60,7 +71,7 @@ const Inbox = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
-    addItem.mutate({ content, type });
+    addItem.mutate({ content, type, urgency, importance });
   };
 
   const typeIcons = {
@@ -106,6 +117,34 @@ const Inbox = () => {
                 placeholder="What's on your mind?"
                 className="min-h-[100px] resize-none"
               />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm">Urgency</Label>
+                  <Select value={urgency} onValueChange={(v: any) => setUrgency(v)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm">Importance</Label>
+                  <Select value={importance} onValueChange={(v: any) => setImportance(v)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
               <div className="flex gap-2">
                 <Button
                   type="button"
@@ -134,42 +173,88 @@ const Inbox = () => {
           />
         )}
 
-        <div className="space-y-3">
-          {inboxItems.length === 0 ? (
-            <Card className="shadow-soft">
-              <CardContent className="py-12 text-center">
-                <Lightbulb className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                <p className="text-muted-foreground">
-                  Your inbox is empty. Capture your first idea!
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            inboxItems.map((item) => {
-              const Icon = typeIcons[item.type as keyof typeof typeIcons];
-              return (
-                <Card key={item.id} className="shadow-soft hover:shadow-elevated transition-shadow">
-                  <CardContent className="py-4">
-                    <div className="flex items-start gap-3">
-                      <Icon className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-foreground">{item.content}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="secondary" className="capitalize text-xs">
-                            {item.type}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(item.created_at).toLocaleDateString()}
-                          </span>
+        <Tabs value={viewMode} onValueChange={(v: any) => setViewMode(v)}>
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="list">List View</TabsTrigger>
+            <TabsTrigger value="matrix">
+              <Grid3x3 className="h-4 w-4 mr-2" />
+              Eisenhower Matrix
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="list" className="space-y-3 mt-4">
+            {inboxItems.length === 0 ? (
+              <Card className="shadow-soft">
+                <CardContent className="py-12 text-center">
+                  <Lightbulb className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                  <p className="text-muted-foreground">
+                    Your inbox is empty. Capture your first idea!
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              inboxItems.map((item) => {
+                const Icon = typeIcons[item.type as keyof typeof typeIcons];
+                return (
+                  <Card key={item.id} className="shadow-soft hover:shadow-elevated transition-shadow">
+                    <CardContent className="py-4">
+                      <div className="flex items-start gap-3">
+                        <Icon className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-foreground">{item.content}</p>
+                          <div className="flex items-center gap-2 mt-2 flex-wrap">
+                            <Badge variant="secondary" className="capitalize text-xs">
+                              {item.type}
+                            </Badge>
+                            <Badge 
+                              variant={item.urgency === "high" ? "destructive" : "outline"} 
+                              className="text-xs"
+                            >
+                              {item.urgency === "high" ? "Urgent" : "Not Urgent"}
+                            </Badge>
+                            <Badge 
+                              variant={item.importance === "high" ? "default" : "outline"} 
+                              className="text-xs"
+                            >
+                              {item.importance === "high" ? "Important" : "Not Important"}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(item.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })
-          )}
-        </div>
+                    </CardContent>
+                  </Card>
+                );
+              })
+            )}
+          </TabsContent>
+
+          <TabsContent value="matrix" className="mt-4">
+            {inboxItems.length === 0 ? (
+              <Card className="shadow-soft">
+                <CardContent className="py-12 text-center">
+                  <Grid3x3 className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                  <p className="text-muted-foreground">
+                    Your inbox is empty. Capture your first idea!
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <EisenhowerMatrix
+                items={inboxItems}
+                onItemClick={(item) => {
+                  // You could add navigation to clarify page or show details
+                  toast({
+                    title: item.content,
+                    description: `${item.type} - ${item.urgency === "high" ? "Urgent" : "Not Urgent"}, ${item.importance === "high" ? "Important" : "Not Important"}`,
+                  });
+                }}
+              />
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );

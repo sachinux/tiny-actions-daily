@@ -19,27 +19,33 @@ export type Database = {
           content: string
           created_at: string | null
           id: string
+          importance: Database["public"]["Enums"]["importance_level"] | null
           status: Database["public"]["Enums"]["item_status"] | null
           type: Database["public"]["Enums"]["item_type"] | null
           updated_at: string | null
+          urgency: Database["public"]["Enums"]["urgency_level"] | null
           user_id: string
         }
         Insert: {
           content: string
           created_at?: string | null
           id?: string
+          importance?: Database["public"]["Enums"]["importance_level"] | null
           status?: Database["public"]["Enums"]["item_status"] | null
           type?: Database["public"]["Enums"]["item_type"] | null
           updated_at?: string | null
+          urgency?: Database["public"]["Enums"]["urgency_level"] | null
           user_id: string
         }
         Update: {
           content?: string
           created_at?: string | null
           id?: string
+          importance?: Database["public"]["Enums"]["importance_level"] | null
           status?: Database["public"]["Enums"]["item_status"] | null
           type?: Database["public"]["Enums"]["item_type"] | null
           updated_at?: string | null
+          urgency?: Database["public"]["Enums"]["urgency_level"] | null
           user_id?: string
         }
         Relationships: [
@@ -159,6 +165,7 @@ export type Database = {
           id: string
           project_id: string | null
           scheduled_date: string | null
+          task_status: Database["public"]["Enums"]["task_status"] | null
           updated_at: string | null
           user_id: string
         }
@@ -171,6 +178,7 @@ export type Database = {
           id?: string
           project_id?: string | null
           scheduled_date?: string | null
+          task_status?: Database["public"]["Enums"]["task_status"] | null
           updated_at?: string | null
           user_id: string
         }
@@ -183,6 +191,7 @@ export type Database = {
           id?: string
           project_id?: string | null
           scheduled_date?: string | null
+          task_status?: Database["public"]["Enums"]["task_status"] | null
           updated_at?: string | null
           user_id?: string
         }
@@ -218,9 +227,12 @@ export type Database = {
         | "money"
         | "relationships"
         | "personal"
+      importance_level: "low" | "high"
       item_status: "inbox" | "archived" | "converted"
       item_type: "idea" | "task" | "note"
       project_status: "active" | "completed" | "archived"
+      task_status: "backlog" | "today" | "in_progress" | "done"
+      urgency_level: "low" | "high"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -356,9 +368,12 @@ export const Constants = {
         "relationships",
         "personal",
       ],
+      importance_level: ["low", "high"],
       item_status: ["inbox", "archived", "converted"],
       item_type: ["idea", "task", "note"],
       project_status: ["active", "completed", "archived"],
+      task_status: ["backlog", "today", "in_progress", "done"],
+      urgency_level: ["low", "high"],
     },
   },
 } as const

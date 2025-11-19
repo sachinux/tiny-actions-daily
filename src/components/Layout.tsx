@@ -28,7 +28,7 @@ const Layout = ({ children }: LayoutProps) => {
     { icon: Target, label: "Today", path: "/today" },
     { icon: Inbox, label: "Inbox", path: "/inbox" },
     { icon: CheckSquare, label: "Clarify", path: "/clarify" },
-    { icon: Calendar, label: "Schedule", path: "/schedule" },
+    { icon: Calendar, label: "Kanban", path: "/schedule" },
     { icon: TrendingUp, label: "Progress", path: "/progress" },
   ];
 

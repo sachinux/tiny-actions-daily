@@ -188,18 +188,20 @@ const Schedule = () => {
               value={taskContent}
               onChange={(e) => setTaskContent(e.target.value)}
             />
-            <Select value={selectedProject} onValueChange={setSelectedProject}>
-              <SelectTrigger>
-                <SelectValue placeholder="Link to project (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                {projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.outcome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div onPointerDown={(e) => e.stopPropagation()}>
+              <Select value={selectedProject} onValueChange={setSelectedProject}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Link to project (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.outcome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <Button
               className="w-full"
               disabled={!taskContent.trim()}

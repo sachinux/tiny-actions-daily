@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Archive, Trash2, ArrowRight } from "lucide-react";
+import { Archive, Trash2, ArrowRight, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Layout from "@/components/Layout";
+import { AITextEnhancer } from "@/components/AITextEnhancer";
 
 const categories = ["design", "fitness", "english", "money", "relationships", "personal"];
 
@@ -19,6 +20,8 @@ const Clarify = () => {
   const [outcome, setOutcome] = useState("");
   const [category, setCategory] = useState("");
   const [tinyNextStep, setTinyNextStep] = useState("");
+  const [showAIEnhancer, setShowAIEnhancer] = useState(false);
+  const [aiEnhancingField, setAiEnhancingField] = useState<"outcome" | "step" | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -165,6 +168,19 @@ const Clarify = () => {
                       value={outcome}
                       onChange={(e) => setOutcome(e.target.value)}
                     />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setAiEnhancingField("outcome");
+                        setShowAIEnhancer(true);
+                      }}
+                      disabled={!outcome.trim()}
+                      className="text-xs"
+                    >
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      Enhance with AI
+                    </Button>
                   </div>
                   <div className="space-y-2">
                     <Label>Category</Label>
@@ -188,6 +204,19 @@ const Clarify = () => {
                       value={tinyNextStep}
                       onChange={(e) => setTinyNextStep(e.target.value)}
                     />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setAiEnhancingField("step");
+                        setShowAIEnhancer(true);
+                      }}
+                      disabled={!tinyNextStep.trim()}
+                      className="text-xs"
+                    >
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      Enhance with AI
+                    </Button>
                   </div>
                   <div className="flex gap-3">
                     <Button
@@ -207,6 +236,23 @@ const Clarify = () => {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {showAIEnhancer && aiEnhancingField && (
+              <AITextEnhancer
+                text={aiEnhancingField === "outcome" ? outcome : tinyNextStep}
+                onAccept={(enhancedText) => {
+                  if (aiEnhancingField === "outcome") {
+                    setOutcome(enhancedText);
+                  } else {
+                    setTinyNextStep(enhancedText);
+                  }
+                }}
+                onClose={() => {
+                  setShowAIEnhancer(false);
+                  setAiEnhancingField(null);
+                }}
+              />
             )}
           </>
         )}

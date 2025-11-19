@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Lightbulb, CheckSquare, FileText } from "lucide-react";
+import { Plus, Lightbulb, CheckSquare, FileText, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Layout from "@/components/Layout";
+import { AITextEnhancer } from "@/components/AITextEnhancer";
 
 const Inbox = () => {
   const [content, setContent] = useState("");
   const [type, setType] = useState<"idea" | "task" | "note">("idea");
+  const [showAIEnhancer, setShowAIEnhancer] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -104,13 +106,33 @@ const Inbox = () => {
                 placeholder="What's on your mind?"
                 className="min-h-[100px] resize-none"
               />
-              <Button type="submit" className="w-full" disabled={!content.trim()}>
-                <Plus className="h-4 w-4 mr-2" />
-                Capture
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowAIEnhancer(true)}
+                  disabled={!content.trim()}
+                  className="flex-shrink-0"
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Enhance with AI
+                </Button>
+                <Button type="submit" className="flex-1" disabled={!content.trim()}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Capture
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>
+
+        {showAIEnhancer && (
+          <AITextEnhancer
+            text={content}
+            onAccept={(enhancedText) => setContent(enhancedText)}
+            onClose={() => setShowAIEnhancer(false)}
+          />
+        )}
 
         <div className="space-y-3">
           {inboxItems.length === 0 ? (

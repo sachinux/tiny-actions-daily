@@ -188,7 +188,12 @@ const Schedule = () => {
               value={taskContent}
               onChange={(e) => setTaskContent(e.target.value)}
             />
-            <div onPointerDown={(e) => e.stopPropagation()}>
+            <div 
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >
               <Select value={selectedProject} onValueChange={setSelectedProject}>
                 <SelectTrigger>
                   <SelectValue placeholder="Link to project (optional)" />
